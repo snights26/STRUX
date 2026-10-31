@@ -21,7 +21,11 @@ export function createProject(name = 'Untitled Structure'): Project {
     sections: structuredClone(SECTION_LIBRARY),
     supports: [],
     loadCases: [{ id: 'lc-dead', name: 'Dead Load', category: 'dead', isActive: true }],
+    loadCombinations: [],
     nodalLoads: [],
+    memberPointLoads: [],
+    memberDistributedLoads: [],
+    selfWeightLoads: [],
     extensions: {},
   };
 }

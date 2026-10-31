@@ -5,7 +5,8 @@
 
 | Check | Command | Actual result | Coverage / note |
 |---|---|---|---|
-| Model unit suite | `npm test` | PASS — 1 file, 15 tests | Final run completed in 1.33 s. Covers coordinates, grid snapping, atomic node-set translate undo/redo, right-handed provisional member axes, dependent deletion, serialization round-trip, schema rejection, malformed entity rejection, zero-length member rejection, coordinate convention, unit conversion and non-finite load validation. |
+| Model unit suite | `npm test` | PASS — 1 file, 22 tests | Final M3 targeted run completed in 594 ms. Covers M1/M2 behavior plus V1→V2 migration, multiple load cases/combinations, member point/distributed loads, self-weight declarations, end releases, editable/protected/cascading references, expanded SI conversions, sections, support DOFs and invalid M3 inputs. |
+| TypeScript integration check | `npx tsc -b` | PASS | M3 UI, model and serialization type-check completed without output or errors. |
 | TypeScript and web production build | `npm run build` | PASS | `tsc -b` succeeded; Vite emitted `dist/`. Final M2 build was 1,179.78 kB raw / 331.56 kB gzip for the Three.js chunk, so Vite emitted its standard >500 kB warning. |
 | Tauri icon assets | `npx tauri icon src-tauri/icons/icon.svg` plus structural ICO check | PASS | Original SVG produced standard multi-resolution assets. `icon.ico` is 16,929 bytes with six valid embedded images; all configured bundle paths exist. |
 | Tauri development host | `npx tauri dev` with the existing Cargo directory added for that process only | PASS | Re-verified after M2: Vite started at the unchanged `127.0.0.1:5174`; Cargo completed the dev compilation and launched `target\\debug\\strux.exe`. The verification session was then stopped cleanly. |
@@ -18,4 +19,4 @@
 
 ## Test integrity
 
-Only commands shown above are claimed as executed. One sandboxed final `npm test` attempt failed before test discovery with a Windows temporary-cache `EPERM` rename error; the same command was immediately re-run using the normal local Windows cache and passed as recorded. A passing TypeScript/web build does not validate native Tauri packaging, engineering calculations, browser interaction correctness, or professional engineering suitability.
+Only commands shown above are claimed as executed. Sandboxed `npm test` runs on this host can fail before test discovery with a Windows temporary-cache `EPERM` rename error; the M3 suite was rerun using the normal local Windows cache and passed as recorded. A passing TypeScript/web build does not validate native Tauri packaging, engineering calculations, browser interaction correctness, or professional engineering suitability.

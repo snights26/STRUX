@@ -96,6 +96,7 @@ export default function App() {
     if (result.project) { dispatch({ type: 'replace', project: result.project }); setSelection(null); setSelectedNodeIds([]); setFileMessage(`Imported ${file.name}`); }
     else setNotice(result.errors.join('\n'));
   }
+  const loadCount = history.project.nodalLoads.length + history.project.memberPointLoads.length + history.project.memberDistributedLoads.length + history.project.selfWeightLoads.length;
   const selectedText = selection ? `${selection.kind === 'nodalLoad' ? 'load' : selection.kind} selected` : 'Nothing selected';
   return <main className="app-shell">
     <header className="topbar">
@@ -114,7 +115,7 @@ export default function App() {
       <section className="canvas-area"><Viewport project={history.project} selection={selection} selectedNodeIds={selectedNodeIds} mode={mode} pendingMemberNodeId={pendingMemberNodeId} cameraPreset={cameraPreset} onCameraPreset={setCameraPreset} onSelect={onSelect} onGroundHit={onGroundHit} />{mode === 'node' && <ExactNodePanel draft={nodeDraft} unitSystem={history.project.settings.unitSystem} onChange={setNodeDraft} onAdd={() => { dispatch({ type: 'add-node', position: nodeDraft }); setFileMessage(`Exact node created at ${nodeDraft.x}, ${nodeDraft.y}, ${nodeDraft.z} m`); }} />}</section>
       <Inspector project={history.project} selection={selection} selectedNodeIds={selectedNodeIds} dispatch={dispatch} />
     </section>
-    <footer className="statusbar"><span><i className="save-indicator" />{fileMessage}</span><span>{selectedText}</span><span>{history.project.nodes.length} nodes · {history.project.members.length} members · {history.project.nodalLoads.length} loads</span><span className={issues.some((issue) => issue.severity === 'error') ? 'status-error' : ''}>{issues.length ? `${issues.length} model check${issues.length > 1 ? 's' : ''}` : 'Model data valid'}</span></footer>
+    <footer className="statusbar"><span><i className="save-indicator" />{fileMessage}</span><span>{selectedText}</span><span>{history.project.nodes.length} nodes · {history.project.members.length} members · {loadCount} loads</span><span className={issues.some((issue) => issue.severity === 'error') ? 'status-error' : ''}>{issues.length ? `${issues.length} model check${issues.length > 1 ? 's' : ''}` : 'Model data valid'}</span></footer>
     {notice && <div className="modal-backdrop" role="presentation" onMouseDown={() => setNotice(null)}><section className="notice-modal" role="dialog" aria-modal="true" aria-labelledby="notice-title" onMouseDown={(event) => event.stopPropagation()}><span className="notice-symbol">!</span><h2 id="notice-title">Phase 1 notice</h2><p>{notice}</p><button className="primary-button" onClick={() => setNotice(null)}>Understood</button></section></div>}
   </main>;
 }

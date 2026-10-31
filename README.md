@@ -4,14 +4,14 @@ STRUX is a lightweight, offline-first structural-modeling research prototype. Th
 
 ## What is included
 
-- CAD-like React/Three.js workspace with a scalable X–Z ground grid and 3D orbit camera.
-- Node placement, node coordinate edits, selectable beam/column/brace members, supports, and nodal loads.
+- CAD-like React/Three.js workspace with a scalable X–Z ground grid, 3D orbit camera, labels, and ISO/top/front/right view presets.
+- Grid or exact-coordinate node placement, node-set numeric transforms, selectable beam/column/brace members, supports, and nodal loads.
 - Built-in compact steel/concrete material and section libraries, with references stored by ID.
 - Metric/imperial display units while values remain in SI base units in the model.
 - Model tree, contextual property inspector, model checks, undo/redo, local autosave, and JSON import/export.
 - Tauri 2 project shell, including native dialog/file plugin integration for desktop save/open when the native host is available.
 - Typed, versioned project schema designed to grow into load combinations, finite elements, plates/slabs, result sets, code design, reporting, and IFC mappings.
-- Unit tests for coordinates, relationships, unit conversion, serialization, and load validation.
+- Unit tests for coordinates, local display axes, transform undo/redo, relationships, unit conversion, serialization, and load validation.
 
 ## Architecture
 
@@ -54,8 +54,9 @@ npm run build
 
 ## Modeling notes
 
-- Use **Node** then click the grid to add nodes at ground level; edit Y in Properties for elevated nodes.
-- Use **Member** then select start and end nodes.
+- Use **Node** then click the grid to add a ground-level node, or enter an exact X/Y/Z location in the node panel.
+- Use **Member** then select start and end nodes. Select a member to see provisional display axes and edit its visual roll; these are not solver axes.
+- Shift-click nodes in the viewport to make a selection set, then use the inspector's numeric delta fields to translate them as one undoable action.
 - Use **Support** or **Nodal Load** then select a node. Supports initially use a pinned condition; loads start at −10 kN in global Y and can be edited.
 - Stored project data always uses metres, newtons, and pascals. Changing units only changes presentation.
 - `Save JSON` produces a portable, versioned `.strux.json` file. The app also keeps a local autosave in its webview storage.

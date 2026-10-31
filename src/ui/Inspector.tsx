@@ -1,4 +1,4 @@
-import type { Dispatch } from 'react';
+import { useState, type Dispatch, type FormEvent } from 'react';
 import { findSelection, type ProjectAction } from '../model/reducer';
 import { fromDisplay, toDisplay, unitLabel } from '../model/units';
 import type { Project, Selection, UnitSystem } from '../model/types';
@@ -6,6 +6,7 @@ import type { Project, Selection, UnitSystem } from '../model/types';
 interface InspectorProps {
   project: Project;
   selection: Selection | null;
+  selectedNodeIds: string[];
   dispatch: Dispatch<ProjectAction>;
 }
 
@@ -15,7 +16,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const numeric = (value: string) => Number.isFinite(Number(value)) ? Number(value) : 0;
 
-export function Inspector({ project, selection, dispatch }: InspectorProps) {
+export function Inspector({ project, selection, selectedNodeIds, dispatch }: InspectorProps) {
   const entity = findSelection(project, selection);
   const units = project.settings.unitSystem;
   const deleteCurrent = () => selection && dispatch({ type: 'delete-entity', kind: selection.kind, id: selection.id });
@@ -23,12 +24,23 @@ export function Inspector({ project, selection, dispatch }: InspectorProps) {
     <div className="panel-title"><span>PROPERTIES</span>{selection && <button className="icon-button danger" title="Delete selected" onClick={deleteCurrent}>⌫</button>}</div>
     <div className="inspector-scroll">
       {!selection && <ProjectProperties project={project} dispatch={dispatch} />}
-      {selection?.kind === 'node' && entity !== null && <NodeProperties node={entity as Project['nodes'][number]} units={units} dispatch={dispatch} />}
+      {selectedNodeIds.length > 1 && <NodeSetProperties nodeIds={selectedNodeIds} units={units} dispatch={dispatch} />}
+      {selection?.kind === 'node' && selectedNodeIds.length <= 1 && entity !== null && <NodeProperties node={entity as Project['nodes'][number]} units={units} dispatch={dispatch} />}
       {selection?.kind === 'member' && entity !== null && <MemberProperties member={entity as Project['members'][number]} project={project} dispatch={dispatch} />}
       {selection?.kind === 'support' && entity !== null && <SupportProperties support={entity as Project['supports'][number]} project={project} dispatch={dispatch} />}
       {selection?.kind === 'nodalLoad' && entity !== null && <LoadProperties load={entity as Project['nodalLoads'][number]} project={project} units={units} dispatch={dispatch} />}
     </div>
   </aside>;
+}
+
+function NodeSetProperties({ nodeIds, units, dispatch }: { nodeIds: string[]; units: UnitSystem; dispatch: Dispatch<ProjectAction> }) {
+  const [delta, setDelta] = useState({ x: 0, y: 0, z: 0 });
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    dispatch({ type: 'translate-nodes', ids: nodeIds, delta: { x: fromDisplay(delta.x, units, 'length'), y: fromDisplay(delta.y, units, 'length'), z: fromDisplay(delta.z, units, 'length') } });
+    setDelta({ x: 0, y: 0, z: 0 });
+  };
+  return <form className="property-form" onSubmit={submit}><h3>{nodeIds.length} Nodes</h3><p className="type-label">SELECTION SET</p><p className="empty-copy">Shift-click nodes in the viewport to add or remove them. Apply one atomic translation; it can be undone with Ctrl+Z.</p><h3>Translate <small>({unitLabel(units, 'length')})</small></h3>{(['x', 'y', 'z'] as const).map((axis) => <Field key={axis} label={`Δ${axis.toUpperCase()}`}><input type="number" step="0.1" value={delta[axis]} onChange={(event) => setDelta({ ...delta, [axis]: numeric(event.target.value) })} /></Field>)}<button className="form-button" type="submit">Apply translation</button></form>;
 }
 
 function ProjectProperties({ project, dispatch }: { project: Project; dispatch: Dispatch<ProjectAction> }) {
@@ -50,7 +62,7 @@ function NodeProperties({ node, units, dispatch }: { node: Project['nodes'][numb
 
 function MemberProperties({ member, project, dispatch }: { member: Project['members'][number]; project: Project; dispatch: Dispatch<ProjectAction> }) {
   const nodeName = (id: string) => project.nodes.find((node) => node.id === id)?.name ?? 'Missing node';
-  return <div className="property-form"><h3>{member.name}</h3><p className="type-label">FRAME MEMBER</p><Field label="Name"><input value={member.name} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { name: event.target.value } })} /></Field><Field label="Type"><select value={member.type} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { type: event.target.value as Project['members'][number]['type'] } })}><option value="beam">Beam</option><option value="column">Column</option><option value="brace">Brace</option></select></Field><Field label="Start"><output>{nodeName(member.startNodeId)}</output></Field><Field label="End"><output>{nodeName(member.endNodeId)}</output></Field><Field label="Material"><select value={member.materialId} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { materialId: event.target.value } })}>{project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}</select></Field><Field label="Section"><select value={member.sectionId} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { sectionId: event.target.value } })}>{project.sections.map((section) => <option key={section.id} value={section.id}>{section.name}</option>)}</select></Field></div>;
+  return <div className="property-form"><h3>{member.name}</h3><p className="type-label">FRAME MEMBER</p><Field label="Name"><input value={member.name} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { name: event.target.value } })} /></Field><Field label="Type"><select value={member.type} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { type: event.target.value as Project['members'][number]['type'] } })}><option value="beam">Beam</option><option value="column">Column</option><option value="brace">Brace</option></select></Field><Field label="Start"><output>{nodeName(member.startNodeId)}</output></Field><Field label="End"><output>{nodeName(member.endNodeId)}</output></Field><Field label="Material"><select value={member.materialId} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { materialId: event.target.value } })}>{project.materials.map((material) => <option key={material.id} value={material.id}>{material.name}</option>)}</select></Field><Field label="Section"><select value={member.sectionId} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { sectionId: event.target.value } })}>{project.sections.map((section) => <option key={section.id} value={section.id}>{section.name}</option>)}</select></Field><h3>Local axis</h3><Field label="Roll (deg)"><input type="number" step="1" value={Number((member.rollAngle * 180 / Math.PI).toFixed(3))} onChange={(event) => dispatch({ type: 'update-member', id: member.id, changes: { rollAngle: numeric(event.target.value) * Math.PI / 180 } })} /></Field><p className="empty-copy">Select this member in the viewport to display its provisional local X/Y/Z axes. This display is not used by a solver yet.</p></div>;
 }
 
 function SupportProperties({ support, project, dispatch }: { support: Project['supports'][number]; project: Project; dispatch: Dispatch<ProjectAction> }) {

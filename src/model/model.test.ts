@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createProject } from './project';
-import { snapPositionToGrid } from './coordinates';
+import { calculateMemberLocalAxes, snapPositionToGrid } from './coordinates';
 import { historyReducer, type HistoryState } from './reducer';
 import { parseProject, serializeProject } from './serialization';
 import { COORDINATE_CONVENTION } from './types';
@@ -28,6 +28,18 @@ describe('structural model', () => {
     expect(current.project.members).toHaveLength(0);
     expect(current.project.supports).toHaveLength(0);
     expect(current.project.nodalLoads).toHaveLength(0);
+  });
+
+  it('translates a node set as one undoable model action', () => {
+    let current = historyReducer(state(), { type: 'add-node', position: { x: 0, y: 0, z: 0 } });
+    current = historyReducer(current, { type: 'add-node', position: { x: 2, y: 0, z: 0 } });
+    const ids = current.project.nodes.map((node) => node.id);
+    current = historyReducer(current, { type: 'translate-nodes', ids, delta: { x: 0, y: 3, z: -1 } });
+    expect(current.project.nodes.map((node) => node.position)).toEqual([{ x: 0, y: 3, z: -1 }, { x: 2, y: 3, z: -1 }]);
+    current = historyReducer(current, { type: 'undo' });
+    expect(current.project.nodes.map((node) => node.position)).toEqual([{ x: 0, y: 0, z: 0 }, { x: 2, y: 0, z: 0 }]);
+    current = historyReducer(current, { type: 'redo' });
+    expect(current.project.nodes.map((node) => node.position)).toEqual([{ x: 0, y: 3, z: -1 }, { x: 2, y: 3, z: -1 }]);
   });
 
   it('maintains project consistency through JSON serialization', () => {
@@ -82,6 +94,19 @@ describe('interactive coordinates', () => {
 
   it('rejects an invalid construction grid interval', () => {
     expect(() => snapPositionToGrid({ x: 0, y: 0, z: 0 }, 0)).toThrow('Grid spacing');
+  });
+
+  it('constructs orthogonal right-handed local member axes', () => {
+    const axes = calculateMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 4, y: 0, z: 0 });
+    expect(axes.x).toEqual({ x: 1, y: 0, z: 0 });
+    expect(axes.y.y).toBeCloseTo(1);
+    expect(axes.z.z).toBeCloseTo(1);
+  });
+
+  it('applies member roll around its local X axis', () => {
+    const axes = calculateMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 4, y: 0, z: 0 }, Math.PI / 2);
+    expect(axes.y.z).toBeCloseTo(1);
+    expect(axes.z.y).toBeCloseTo(-1);
   });
 });
 

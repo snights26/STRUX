@@ -1,5 +1,5 @@
 import { createId, withTimestamp } from './project';
-import { RESTRAINTS, type Member, type ModelEntityKind, type NodalLoad, type Project, type Selection, type Support, type SupportType } from './types';
+import { RESTRAINTS, type Member, type ModelEntityKind, type NodalLoad, type Project, type Selection, type Support, type SupportType, type Vector3 } from './types';
 
 export interface HistoryState {
   project: Project;
@@ -12,6 +12,7 @@ export type ProjectAction =
   | { type: 'update-project'; changes: Pick<Project, 'name' | 'description'> | { settings: Project['settings'] } }
   | { type: 'add-node'; position: { x: number; y: number; z: number } }
   | { type: 'update-node'; id: string; changes: Partial<Pick<Project['nodes'][number], 'name' | 'position'>> }
+  | { type: 'translate-nodes'; ids: string[]; delta: Vector3 }
   | { type: 'add-member'; startNodeId: string; endNodeId: string }
   | { type: 'update-member'; id: string; changes: Partial<Pick<Member, 'name' | 'type' | 'materialId' | 'sectionId' | 'rollAngle'>> }
   | { type: 'set-support'; nodeId: string; supportType: SupportType }
@@ -35,6 +36,12 @@ function mutate(project: Project, action: Exclude<ProjectAction, { type: 'undo' 
     case 'update-node': {
       const node = p.nodes.find((item) => item.id === action.id);
       if (node) Object.assign(node, action.changes);
+      return withTimestamp(p);
+    }
+    case 'translate-nodes': {
+      const ids = new Set(action.ids);
+      if (!ids.size || !p.nodes.some((node) => ids.has(node.id))) return project;
+      p.nodes = p.nodes.map((node) => ids.has(node.id) ? { ...node, position: { x: node.position.x + action.delta.x, y: node.position.y + action.delta.y, z: node.position.z + action.delta.z } } : node);
       return withTimestamp(p);
     }
     case 'add-member': {

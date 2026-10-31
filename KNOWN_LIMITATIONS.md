@@ -7,6 +7,7 @@
 - Materials and sections are illustrative library records, not design-code verified catalogues.
 - No RCC, steel, timber or composite design check exists. Indian, American and European code support is not implemented.
 - `Analyze` and reporting intentionally state that functionality is unavailable. No displayed model object is an engineering result.
+- The M2 member local X/Y/Z glyph and roll value are a provisional display convention. They are not yet a solver element-axis convention and cannot be used to infer member force signs, releases or design orientation.
 - No numerical benchmark has been executed. Any future solver output must remain **EXPERIMENTAL** until documented benchmarks pass.
 
 ## Product / platform
@@ -14,7 +15,7 @@
 - The native Tauri development executable launched successfully, but Cargo is not on the default process `PATH` on this host. Installer generation, installation, capability interaction and native file I/O are still unverified.
 - Python and PyNite are absent; the analysis backend is a documented boundary only.
 - The browser client uses local storage plus JSON export/import; no cloud sync, collaboration, account system, encryption-at-rest or multi-user conflict handling exists.
-- Browser interaction, accessibility and visual regression testing are not automated.
+- Browser interaction, accessibility and visual regression testing are not automated. M2 has a recorded isolated manual browser check only.
 - Three.js is the dominant web payload and currently produces a Vite chunk-size warning.
 - IFC, BIM import/export, drawings, report templates and standards data are absent.
 

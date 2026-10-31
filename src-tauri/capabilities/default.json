@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default capability for the STRUX desktop window",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:default", "fs:default"]
+}

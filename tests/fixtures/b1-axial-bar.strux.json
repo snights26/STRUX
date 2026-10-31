@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "id": "project-b1-axial-bar",
+  "name": "B1 Axial Bar — Tauri Bridge",
+  "description": "Integration fixture: 3 m steel axial bar with +100 kN global-X load.",
+  "createdAt": "2026-10-31T00:00:00.000Z",
+  "updatedAt": "2026-10-31T00:00:00.000Z",
+  "settings": { "unitSystem": "metric", "gridSpacing": 1, "gridExtents": 10 },
+  "nodes": [
+    { "id": "n-fixed", "name": "N1 Fixed", "position": { "x": 0, "y": 0, "z": 0 } },
+    { "id": "n-loaded", "name": "N2 Loaded", "position": { "x": 3, "y": 0, "z": 0 } }
+  ],
+  "materials": [
+    { "id": "mat-steel", "name": "Steel E200", "kind": "steel", "elasticModulus": 200000000000, "poissonRatio": 0.3, "density": 7850 }
+  ],
+  "sections": [
+    { "id": "sec-bar", "name": "A = 0.01 m²", "shape": "custom", "area": 0.01, "iy": 0.00001, "iz": 0.00001, "torsionalConstant": 0.00001 }
+  ],
+  "members": [
+    { "id": "m-bar", "name": "M1 Axial Bar", "type": "brace", "startNodeId": "n-fixed", "endNodeId": "n-loaded", "materialId": "mat-steel", "sectionId": "sec-bar", "rollAngle": 0, "endReleases": { "start": [false, false, false, false, false, false], "end": [false, false, false, false, false, false] } }
+  ],
+  "supports": [
+    { "id": "s-fixed", "nodeId": "n-fixed", "type": "fixed", "restraints": [true, true, true, true, true, true] },
+    { "id": "s-guide", "nodeId": "n-loaded", "type": "custom", "restraints": [false, true, true, true, true, true] }
+  ],
+  "loadCases": [
+    { "id": "lc-dead", "name": "Axial Test", "category": "dead", "isActive": true }
+  ],
+  "loadCombinations": [],
+  "nodalLoads": [
+    { "id": "p-x", "nodeId": "n-loaded", "loadCaseId": "lc-dead", "name": "P = +100 kN X", "values": { "fx": 100000, "fy": 0, "fz": 0, "mx": 0, "my": 0, "mz": 0 } }
+  ],
+  "memberPointLoads": [],
+  "memberDistributedLoads": [],
+  "selfWeightLoads": [],
+  "extensions": {}
+}

@@ -1,6 +1,6 @@
 import type { UnitSystem } from './types';
 
-export type Quantity = 'length' | 'area' | 'secondMoment' | 'force' | 'forcePerLength' | 'moment' | 'stress' | 'density';
+export type Quantity = 'length' | 'area' | 'secondMoment' | 'force' | 'forcePerLength' | 'moment' | 'momentPerLength' | 'stress' | 'density';
 
 interface UnitDefinition {
   label: string;
@@ -17,6 +17,8 @@ const DEFINITIONS: Record<UnitSystem, Record<Quantity, UnitDefinition>> = {
     force: { label: 'kN', siPerDisplay: 1000, decimals: 2 },
     forcePerLength: { label: 'kN/m', siPerDisplay: 1000, decimals: 2 },
     moment: { label: 'kN·m', siPerDisplay: 1000, decimals: 2 },
+    /** Plate/shell bending resultant: N·m/m, dimensionally a force. */
+    momentPerLength: { label: 'kN·m/m', siPerDisplay: 1000, decimals: 2 },
     stress: { label: 'MPa', siPerDisplay: 1e6, decimals: 1 },
     density: { label: 'kg/m³', siPerDisplay: 1, decimals: 1 },
   },
@@ -27,6 +29,7 @@ const DEFINITIONS: Record<UnitSystem, Record<Quantity, UnitDefinition>> = {
     force: { label: 'kip', siPerDisplay: 4448.2216152605, decimals: 2 },
     forcePerLength: { label: 'kip/ft', siPerDisplay: 14593.902937205, decimals: 2 },
     moment: { label: 'kip·ft', siPerDisplay: 1355.8179483314, decimals: 2 },
+    momentPerLength: { label: 'kip·ft/ft', siPerDisplay: 4448.2216152605, decimals: 2 },
     stress: { label: 'ksi', siPerDisplay: 6.894757293168e6, decimals: 2 },
     density: { label: 'lb/ft³', siPerDisplay: 16.01846337396, decimals: 1 },
   },
@@ -47,4 +50,12 @@ export function fromDisplay(displayValue: number, system: UnitSystem, quantity: 
 export function formatUnit(siValue: number, system: UnitSystem, quantity: Quantity): string {
   const definition = DEFINITIONS[system][quantity];
   return `${toDisplay(siValue, system, quantity).toFixed(definition.decimals)} ${definition.label}`;
+}
+
+/** Solver displacements need more precision than ordinary CAD coordinate display. */
+export function formatDisplacement(siValue: number, system: UnitSystem): string {
+  const definition = DEFINITIONS[system].length;
+  const displayValue = toDisplay(siValue, system, 'length');
+  const decimals = Math.abs(displayValue) > 0 && Math.abs(displayValue) < 0.01 ? 6 : definition.decimals;
+  return `${displayValue.toFixed(decimals)} ${definition.label}`;
 }

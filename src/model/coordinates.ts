@@ -37,19 +37,30 @@ export function snapPositionToGrid(position: Vector3, spacing: number): Vector3 
 }
 
 /**
- * Display-only right-handed member axes. Local X runs from start to end node;
- * local Y/Z rotate around X by rollAngle. This is not yet a solver convention.
+ * PyNiteFEA 3.2.1-compatible right-handed member axes. Local X runs from start
+ * to end node; local Y/Z and roll follow the engine's Member3D transformation.
  */
 export function calculateMemberLocalAxes(start: Vector3, end: Vector3, rollAngle = 0): MemberLocalAxes {
-  const x = normalize({ x: end.x - start.x, y: end.y - start.y, z: end.z - start.z });
-  const reference = Math.abs(x.y) < 0.95 ? { x: 0, y: 1, z: 0 } : { x: 0, y: 0, z: 1 };
-  const unrolledZ = normalize(cross(x, reference));
-  const unrolledY = normalize(cross(unrolledZ, x));
+  const delta = { x: end.x - start.x, y: end.y - start.y, z: end.z - start.z };
+  const x = normalize(delta);
+  let unrolledY: Vector3;
+  let unrolledZ: Vector3;
+  if (Math.abs(delta.x) <= 1e-12 && Math.abs(delta.z) <= 1e-12) {
+    unrolledY = delta.y > 0 ? { x: -1, y: 0, z: 0 } : { x: 1, y: 0, z: 0 };
+    unrolledZ = { x: 0, y: 0, z: 1 };
+  } else if (Math.abs(delta.y) <= 1e-12) {
+    unrolledY = { x: 0, y: 1, z: 0 };
+    unrolledZ = normalize(cross(x, unrolledY));
+  } else {
+    const projection = { x: delta.x, y: 0, z: delta.z };
+    unrolledZ = normalize(delta.y > 0 ? cross(projection, x) : cross(x, projection));
+    unrolledY = normalize(cross(unrolledZ, x));
+  }
   const cosine = Math.cos(rollAngle);
   const sine = Math.sin(rollAngle);
   return {
     x,
     y: { x: unrolledY.x * cosine + unrolledZ.x * sine, y: unrolledY.y * cosine + unrolledZ.y * sine, z: unrolledY.z * cosine + unrolledZ.z * sine },
-    z: { x: unrolledZ.x * cosine - unrolledY.x * sine, y: unrolledZ.y * cosine - unrolledY.y * sine, z: unrolledZ.z * cosine - unrolledY.z * sine },
+    z: { x: unrolledZ.x * cosine + unrolledY.x * -sine, y: unrolledZ.y * cosine + unrolledY.y * -sine, z: unrolledZ.z * cosine + unrolledY.z * -sine },
   };
 }

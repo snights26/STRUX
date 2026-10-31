@@ -1,4 +1,5 @@
 import { MATERIAL_LIBRARY, SECTION_LIBRARY } from './library';
+import { createBuildingModel } from './building';
 import { PROJECT_SCHEMA_VERSION, type Project } from './types';
 
 export function createId(prefix: string): string {
@@ -26,6 +27,15 @@ export function createProject(name = 'Untitled Structure'): Project {
     memberPointLoads: [],
     memberDistributedLoads: [],
     selfWeightLoads: [],
+    surfacePressureLoads: [],
+    nodalSprings: [],
+    settlements: [],
+    rigidLinks: [],
+    thermalLoads: [],
+    imposedDisplacements: [],
+    windLoads: [],
+    seismicLoads: [],
+    building: createBuildingModel(),
     extensions: {},
   };
 }

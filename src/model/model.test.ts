@@ -4,7 +4,7 @@ import { calculateMemberLocalAxes, snapPositionToGrid } from './coordinates';
 import { historyReducer, type HistoryState } from './reducer';
 import { parseProject, serializeProject } from './serialization';
 import { COORDINATE_CONVENTION } from './types';
-import { fromDisplay, toDisplay } from './units';
+import { formatDisplacement, fromDisplay, toDisplay } from './units';
 import { validateMemberDistributedLoad, validateMemberPointLoad, validateNodalLoad, validateProject, validateSelfWeightLoad } from './validation';
 
 const state = (): HistoryState => ({ project: createProject('Test Frame'), past: [], future: [] });
@@ -50,7 +50,7 @@ describe('structural model', () => {
     expect(imported.project?.nodes[0].position.x).toBe(1.25);
   });
 
-  it('migrates a version 1 project to the version 2 engineering-input schema', () => {
+  it('migrates a version 1 project through the version 3 building-model schema', () => {
     let current = historyReducer(state(), { type: 'add-node', position: { x: 0, y: 0, z: 0 } });
     current = historyReducer(current, { type: 'add-node', position: { x: 3, y: 0, z: 0 } });
     current = historyReducer(current, { type: 'add-member', startNodeId: current.project.nodes[0].id, endNodeId: current.project.nodes[1].id });
@@ -60,8 +60,9 @@ describe('structural model', () => {
     delete legacy.members[0].endReleases;
     const imported = parseProject(JSON.stringify(legacy));
     expect(imported.errors).toEqual([]);
-    expect(imported.project?.schemaVersion).toBe(2);
+    expect(imported.project?.schemaVersion).toBe(4);
     expect(imported.project?.members[0].endReleases.start).toEqual([false, false, false, false, false, false]);
+    expect(imported.project?.building.storeys).toHaveLength(2);
   });
 
   it('rejects an unsupported project schema version', () => {
@@ -167,6 +168,7 @@ describe('units', () => {
   it('round-trips SI length through feet', () => {
     const metres = 3.75;
     expect(fromDisplay(toDisplay(metres, 'imperial', 'length'), 'imperial', 'length')).toBeCloseTo(metres, 10);
+    expect(formatDisplacement(0.00015, 'metric')).toBe('0.000150 m');
   });
 
   it('converts 10 kN to the stored SI force value', () => {
@@ -201,6 +203,13 @@ describe('interactive coordinates', () => {
     const axes = calculateMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 4, y: 0, z: 0 }, Math.PI / 2);
     expect(axes.y.z).toBeCloseTo(1);
     expect(axes.z.y).toBeCloseTo(-1);
+  });
+
+  it('matches the verified PyNite vertical-member local-axis convention', () => {
+    const axes = calculateMemberLocalAxes({ x: 0, y: 0, z: 0 }, { x: 0, y: 3, z: 0 });
+    expect(axes.x).toEqual({ x: 0, y: 1, z: 0 });
+    expect(axes.y).toEqual({ x: -1, y: 0, z: 0 });
+    expect(axes.z).toEqual({ x: 0, y: 0, z: 1 });
   });
 });
 

@@ -16,6 +16,7 @@ __pycache__/
 .ruff_cache/
 .coverage
 src-tauri/target/
+src-tauri/gen/
 .env
 .env.*
 !.env.example

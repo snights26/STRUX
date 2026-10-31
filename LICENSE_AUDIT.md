@@ -23,6 +23,6 @@ The lockfile reports 181 package records with declared expressions: 152 MIT, 4 A
 
 ## Packaging decision
 
-**NOT APPROVED FOR DISTRIBUTION YET.** The JavaScript inventory is permissive on its face, but this is not legal advice or a full notice-file audit. Before creating an installer, resolve and record Rust crate versions/licenses in `Cargo.lock`, generate third-party notices for npm and Cargo dependencies, review Tauri distribution terms, and verify the final package contains required notices.
+**NOT APPROVED FOR DISTRIBUTION YET.** The JavaScript inventory is permissive on its face, but this is not legal advice or a full notice-file audit. `Cargo.lock` now pins the Rust dependency graph after the verified development build, but crate licenses have not been inventoried. Before creating an installer, generate third-party notices for npm and Cargo dependencies, review Tauri distribution terms, and verify the final package contains required notices.
 
 PyNite and optional OpenSeesPy are not installed, so their licenses are not audited here. Adding either requires a new audit before distribution.

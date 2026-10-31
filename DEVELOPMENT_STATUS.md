@@ -13,7 +13,7 @@
 | M3 — Engineering data, loads and supports | PARTIAL | Materials/sections, restraint vectors, one default load case and global nodal force/moment loads exist. There is no load-case editor, combination engine, distributed/member load, imposed displacement, temperature load, release, self-weight or editable library manager. |
 | M4 — PyNite FEM integration | BLOCKED | No Python runtime is installed on this machine; no PyNite dependency, solver bridge, solver input translator, benchmark, or numerical result exists. `SolverAdapter` deliberately rejects analysis. |
 | M5 — Results and reporting | NOT STARTED | No calculated result schema, diagrams, tables, reports, or numerical benchmarks exist. `ReportAdapter` deliberately rejects reporting. |
-| M6 — Windows desktop packaging and limited web | PARTIAL | Vite browser build passes; a Tauri 2 Rust shell and native file-dialog adapters are committed. Rust/Cargo is unavailable, so `tauri dev`, Windows `.exe`, installer, capability verification and native file I/O remain NOT RUN. |
+| M6 — Windows desktop packaging and limited web | PARTIAL | Vite browser build passes; the Tauri 2 development host compiled and launched `strux.exe` after icon and local-port repair. Windows installer generation, installation, capability interaction and native file I/O remain NOT RUN. |
 
 ## Current architecture decision
 
@@ -27,4 +27,4 @@ M2 and M3 can proceed in parallel only after a written acceptance criterion is a
 
 ## Repository notes
 
-This directory has no `.git` metadata, so no commit was created. Source changes and verification evidence are present in the working tree.
+The verified M1 foundation is committed on `main`. This native-launch repair will be committed separately after review.

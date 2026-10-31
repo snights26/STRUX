@@ -3,7 +3,7 @@
   "productName": "STRUX",
   "version": "0.1.0",
   "identifier": "in.strux.desktop",
-  "build": { "beforeDevCommand": "npm run dev", "beforeBuildCommand": "npm run build", "devUrl": "http://localhost:1420", "frontendDist": "../dist" },
+  "build": { "beforeDevCommand": "npm run dev", "beforeBuildCommand": "npm run build", "devUrl": "http://127.0.0.1:5174", "frontendDist": "../dist" },
   "app": { "windows": [{ "title": "STRUX — Structural Modeler", "width": 1400, "height": 860, "minWidth": 960, "minHeight": 600 }], "security": { "csp": "default-src 'self'; img-src 'self' asset: http://asset.localhost data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self'" } },
-  "bundle": { "active": true, "targets": "all", "icon": [] }
+  "bundle": { "active": true, "targets": "all", "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"] }
 }

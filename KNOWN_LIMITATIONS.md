@@ -11,7 +11,7 @@
 
 ## Product / platform
 
-- Rust/Cargo is absent, so native Tauri execution, file permissions and Windows packaging are unverified.
+- The native Tauri development executable launched successfully, but Cargo is not on the default process `PATH` on this host. Installer generation, installation, capability interaction and native file I/O are still unverified.
 - Python and PyNite are absent; the analysis backend is a documented boundary only.
 - The browser client uses local storage plus JSON export/import; no cloud sync, collaboration, account system, encryption-at-rest or multi-user conflict handling exists.
 - Browser interaction, accessibility and visual regression testing are not automated.

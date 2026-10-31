@@ -43,6 +43,8 @@ To run the desktop host after Rust is installed:
 npx tauri dev
 ```
 
+`cargo` must be available on your process `PATH`. This host has Rust installed under `%USERPROFILE%\.cargo\bin`; add that directory to `PATH` before invoking Tauri in a new terminal. The development client uses `http://127.0.0.1:5174` for its local Vite server.
+
 Quality checks:
 
 ```powershell
